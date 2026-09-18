@@ -1,0 +1,22 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Logs and local environment
+*.log
+.env
+.env.*
+
+# Dependencies - the bundled script uses only the Node standard library,
+# so this only guards against a stray install
+node_modules/
+
+# 生成的攻略。默认输出到 <cwd>/travel-guides/，不在本仓库内；
+# 这里忽略只是为了在仓库内直接试跑时保持干净。
+travel-guides/

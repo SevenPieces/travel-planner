@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sample-family-trip</title>
+<style>
+:root { color-scheme: light; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  max-width: 880px; margin: 0 auto; padding: 32px 24px 64px; line-height: 1.7; color: #24292f; }
+h1 { border-bottom: 3px solid #1f6feb; padding-bottom: .3em; }
+h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .2em; margin-top: 1.8em; }
+h3 { margin-top: 1.4em; }
+h4 { margin-top: 1.2em; color: #1f6feb; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 14px; }
+th, td { border: 1px solid #d0d7de; padding: 8px 10px; text-align: left; vertical-align: top; }
+th { background: #f6f8fa; font-weight: 600; }
+tbody tr:nth-child(even) td { background: #fafbfc; }
+blockquote { border-left: 4px solid #1f6feb; background: #f6f8fa; margin: 1em 0; padding: 4px 16px; color: #57606a; }
+blockquote p { margin: .5em 0; }
+code { background: #f6f8fa; border-radius: 4px; padding: 2px 5px; font-family: ui-monospace, Consolas, monospace; font-size: .9em; }
+pre { background: #f6f8fa; padding: 12px; border-radius: 6px; overflow: auto; }
+a { color: #1f6feb; }
+li { margin: .25em 0; }
+hr { border: none; border-top: 1px solid #d0d7de; margin: 2em 0; }
+img { max-width: 100%; height: auto; border-radius: 8px; margin: .4em 0; }
+.route { margin: 1em 0; display: flex; flex-direction: column; gap: 6px; }
+.rleg { display: flex; align-items: center; gap: 10px; background: #f6f8fa; border: 1px solid #d0d7de;
+  border-radius: 8px; padding: 6px 12px; flex-wrap: wrap; }
+.rnode { font-weight: 600; background: #eef4ff; border: 1px solid #c5d8f8; border-radius: 6px;
+  padding: 2px 10px; white-space: nowrap; }
+.rarrow { color: #1f6feb; font-weight: 700; }
+.rlink { color: #57606a; font-size: 13px; flex: 1; }
+.map { margin: 1em 0; }
+.map-note { color: #57606a; font-size: 13px; margin: .4em 0 1.2em; }
+.videos { margin: 1em 0; display: flex; flex-direction: column; gap: 10px; }
+.vcard { border: 1px solid #d0d7de; border-radius: 8px; padding: 8px; background: #fff; }
+.vframe { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; }
+.vframe iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.vmeta { padding: 8px 4px 2px; display: flex; flex-direction: column; gap: 4px; }
+.vsub { color: #57606a; font-size: 13px; }
+.vmeta a { font-size: 13px; }
+.print-tip { position: sticky; top: 0; text-align: right; font-size: 13px; color: #57606a; }
+@media print { .print-tip, .map, .map-note, .videos { display: none; } body { padding: 0; } }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<div class="print-tip">📄 阅读版 · 打印/导出 PDF：Ctrl+P（Windows）/ ⌘+P（Mac），纸张选 A4</div>
+<h1>西双版纳 6天5晚 家庭游攻略</h1>
+<blockquote><p><strong>（示例文件）</strong> 出发地、日期与出行人构成为占位信息，不是真实出行记录。</p></blockquote>
+<p><strong>（示例行程 · 6天5晚 · 自驾）</strong></p>
+<blockquote><p>攻略说明：本文所有价格、开放时间、场次均基于 2025–2026 年公开信息（含来源链接，见文末）。<strong>凡是标注"需出发前核实"的项目，请在出发前一周内通过景区官方公众号/购票平台/电话二次确认</strong>——尤其是 2026 年 8 月正值主汛期，景区临时闭园、项目停运的可能性真实存在。</p><p>行程原则：从容轻松（每天最多 2 个核心点）、深入风土人情（傣寨、非遗、雨林、茶山、夜市）、老幼兼顾（同行长者登山仅低强度，全程有低强度替代方案）、顺应雨季（上午户外、午后雷阵雨时段安排室内或休整）。</p></blockquote>
+<hr>
+<h2>0. 攻略速览</h2>
+<p><strong>一句话行程</strong>：周二晚抵版纳休整 → 周三市区适应（早市+御花园+星光夜市）→ 周四植物园全天 → 周五傣寨风土（傣族园+曼远村）→ 周六雨林与非遗（野象谷+曼掌村）→ 周日睡懒觉、中午轻量活动后返程。</p>
+<p><strong>5 项核心决策（先读这个）</strong>：</p>
+<table><thead><tr><th>#</th><th>决策</th><th>推荐</th><th>理由</th></tr></thead><tbody>
+<tr><td>1</td><td>返程航班时刻</td><td>已定： <strong>下午或晚上返程</strong>，上午睡懒觉、中午轻量活动</td><td>具体班次确定后仅微调中午活动的时长余量（见 D5）</td></tr>
+<tr><td>2</td><td>住宿方案</td><td>方案A：告庄1晚→市区3晚→告庄1晚</td><td>兼顾夜市氛围与白天出行的停车便利，见第 5 章</td></tr>
+<tr><td>3</td><td>Day4 主线</td><td>野象谷（观象栈道，不参加喂象/合影）</td><td>同行人可同游、强度低；若更想"亲子在地"，可换基诺山雨林徒步（见 Day4 备选）</td></tr>
+<tr><td>4</td><td>告庄入园</td><td>坚持刷<strong>身份证</strong>入园</td><td>2025 年出现过"强制抖音扫码"舆情，官方已整改为 4 种方式，老人直接刷身份证最省事</td></tr>
+<tr><td>5</td><td>儿童安全座椅</td><td><strong>自备</strong>或提前电话确认租车行可租</td><td>版纳租车儿童座椅常缺货（约 20–50 元/天）</td></tr>
+</tbody></table>
+<hr>
+<h2>1. 需出发前核实清单（出发前一周内逐项确认）</h2>
+<table><thead><tr><th>#</th><th>事项</th><th>为什么重要</th></tr></thead><tbody>
+<tr><td>1</td><td><strong> 返程具体班次</strong>（下午或晚班已定）</td><td>决定中午轻量活动的时长余量与到机场时间</td></tr>
+<tr><td>2</td><td>机票价格与班次（8月暑期，提前1–2个月订）</td><td>价格浮动大，往返约 800–1800 元/人区间</td></tr>
+<tr><td>3</td><td>各景区<strong>2026年8月现行票价与优惠</strong></td><td>野象谷成人票 58 元（2025-11 平台价）与 60–65 元（政府定价）并存；傣族园电瓶车 40 元 vs 60 元说法不一；独树成林 35–85 元说法不一</td></tr>
+<tr><td>4</td><td>曼听公园儿童免票口径（1.2米或7周岁 vs 6周岁）、开放时间口径</td><td>两来源不一致</td></tr>
+<tr><td>5</td><td>曼听"澜沧江·湄公河之夜"晚会：雨季是否照常举行、票价是否调整</td><td>露天项目（放水灯、篝火）雨天可能取消</td></tr>
+<tr><td>6</td><td>告庄 2026 年 8 月入园方式与是否临时收费</td><td>2025 年国庆曾收 68 元/人引发争议</td></tr>
+<tr><td>7</td><td>植物园汛期是否临时闭园/游览车停运</td><td>州防汛提示点名 8 月强降水、地灾高发</td></tr>
+<tr><td>8</td><td>打洛口岸方向：边境通行证要求、跨境项目开放状态、口岸客流</td><td>2026 年 6 月实测边境游萧条，出发前电话确认口岸查验要求</td></tr>
+<tr><td>9</td><td>南糯山 8 月采茶体验是否开放</td><td>8 月非采茶季，采茶环节可能暂停（压饼仍可做）</td></tr>
+<tr><td>10</td><td>曼远村蘑菇屋门票（约 20 元为 2021 年信息）</td><td>时效存疑</td></tr>
+<tr><td>11</td><td>曼掌村象脚鼓制作地点与价格</td><td>未查到 2025–2026 年明确数字</td></tr>
+<tr><td>12</td><td>租车儿童安全座椅 availability</td><td>平台常缺货</td></tr>
+<tr><td>13</td><td>告庄所选客栈<strong>是否有停车位</strong></td><td>告庄停车难是自驾家庭主要短板（有差评佐证）</td></tr>
+<tr><td>14</td><td>山区道路施工/路况（勐腊方向、打洛方向）</td><td>有公路改造工程招标信息，雨季落石积水多</td></tr>
+<tr><td>15</td><td>24 小时药店</td><td>景洪 24 小时药店少，夜间以急诊为主</td></tr>
+</tbody></table>
+<hr>
+<h2>2. 行程总览表</h2>
+<table><thead><tr><th>日期</th><th>星期</th><th>白天安排</th><th>晚间</th><th>夜宿</th></tr></thead><tbody>
+<tr><td>D0</td><td>周二</td><td>晚班机→嘎洒机场（约2h），机场取车</td><td>抵达后直接休整，不安排活动</td><td>告庄西双景</td></tr>
+<tr><td>D1</td><td>周三</td><td>曼丢村早市 → 曼听公园+总佛寺</td><td>告庄星光夜市</td><td>景洪市区</td></tr>
+<tr><td>D2</td><td>周四</td><td>中科院西双版纳热带植物园（全天，西区）</td><td>酒店休整/泳池</td><td>景洪市区</td></tr>
+<tr><td>D3</td><td>周五</td><td>傣族园（泼水+佛寺+竹楼）→ 曼远村（蘑菇屋+造纸）</td><td>江边夜市（本地人夜市）</td><td>景洪市区</td></tr>
+<tr><td>D4</td><td>周六</td><td>野象谷（观象栈道）→ 曼掌村（非遗手作）</td><td>告庄夜市（周末最热闹）</td><td>告庄西双景</td></tr>
+<tr><td>D5</td><td>周日</td><td>睡懒觉 → 中午轻量活动 → 返程</td><td>返程：嘎洒→出发地</td><td>—</td></tr>
+</tbody></table>
+<blockquote><p>节奏特征：每天 07:30–08:30 出发（趁上午凉爽），午后雷阵雨时段（约 14:00–17:00）安排室内/休整/泳池，正好符合"上午户外、午后室内"的雨季原则。</p></blockquote>
+<h3>路线图（目的地内每日动线）</h3>
+<p><strong>文字总览</strong>：嘎洒机场 → 告庄西双景（D0 抵达）→ D1 市区圈（曼丢村 / 曼听公园 / 告庄夜市）→ D2 勐仑线（植物园，55km / 1h）→ D3 橄榄坝线（傣族园 / 曼远村，27km / 40min）→ D4 勐养线（野象谷 / 曼掌村，36km / 50min）→ D5 返程（回机场还车）。</p>
+<table><thead><tr><th>#</th><th>路段</th><th>交通</th><th>距离/车程</th><th>对应安排</th></tr></thead><tbody>
+<tr><td>1</td><td>嘎洒机场 → 告庄西双景</td><td>自驾/打车</td><td>约15分钟</td><td>D0 入住休整</td></tr>
+<tr><td>2</td><td>告庄西双景 → 曼丢村</td><td>自驾</td><td>约10km / 约20分钟</td><td>D1 早市</td></tr>
+<tr><td>3</td><td>曼丢村 → 曼听公园+总佛寺</td><td>自驾</td><td>约20分钟</td><td>D1 上午</td></tr>
+<tr><td>4</td><td>曼听公园+总佛寺 → 告庄西双景</td><td>自驾</td><td>约10–15分钟</td><td>D1 晚间夜市</td></tr>
+<tr><td>5</td><td>景洪市区 → 中科院植物园</td><td>自驾（小磨高速）</td><td>约55km / 约1小时</td><td>D2 全天</td></tr>
+<tr><td>6</td><td>景洪市区 → 傣族园</td><td>自驾</td><td>约27km / 约40分钟</td><td>D3 上午</td></tr>
+<tr><td>7</td><td>傣族园 → 曼远村</td><td>自驾</td><td>约20–30分钟（同镇）</td><td>D3 下午</td></tr>
+<tr><td>8</td><td>景洪市区 → 野象谷</td><td>自驾（G213）</td><td>约36km / 约50分钟</td><td>D4 上午</td></tr>
+<tr><td>9</td><td>野象谷 → 曼掌村</td><td>自驾</td><td>约20–30分钟（同镇）</td><td>D4 下午</td></tr>
+<tr><td>10</td><td>曼掌村 → 告庄西双景</td><td>自驾</td><td>约50分钟</td><td>D4 晚间夜市</td></tr>
+<tr><td>11</td><td>告庄西双景 → 嘎洒机场</td><td>自驾</td><td>约20分钟</td><td>D5 还车</td></tr>
+</tbody></table>
+<h4>🗺 总览 · 全部动线</h4><div id="map-ov-0" class="map" style="height:440px;border:1px solid #d0d7de;border-radius:8px;"></div>
+<p class="map-note">地图与视频需联网加载（Leaflet + 高德瓦片 / B 站）；视频播放量为生成时的快照。</p>
+<hr>
+<h2>3. 每日详细行程</h2>
+<h3>D0 ·（周二）抵达休整夜</h3>
+<ul><li>
+<strong>航班</strong>：示例出发地机场→ 嘎洒机场，直飞约 2 小时，川航/东航/西藏航/成都航等执飞。<strong>建议选 21:00 前落地的班次</strong>（带老人孩子不宜深夜奔波）。
+</li><li>
+<strong>取车</strong>：嘎洒机场有 一嗨/神州/携程 等租车门店，机场取还车。
+</li><li>
+<strong>入住</strong>：告庄西双景内客栈（距机场打车约 15 分钟/30 元）。深夜抵达，简单宵夜即休息。
+</li><li>
+<strong>提醒</strong>：办理入住时确认停车位；第二天要早起，23:00 前入睡。
+</li></ul>
+<h4>今日动线与视频</h4>
+<h4>D0 ·（周二）抵达</h4><div id="map-1-0" class="map" style="height:320px;border:1px solid #d0d7de;border-radius:8px;"></div>
+<div class="videos"><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1W8XKYwE8A&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】嘎洒机场航站楼</strong><span class="vsub">吃遍东西（博主）· 2025-03 · 2:57 · 航站楼实拍</span><a href="https://www.bilibili.com/video/BV1W8XKYwE8A" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1MyQyYVECt&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观】嘎洒机场 10 分钟攻略</strong><span class="vsub">高鹏Inter（机场系列）· 2025-03 · 3:43 · 值机流程（未找到批判向素材）</span><a href="https://www.bilibili.com/video/BV1MyQyYVECt" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div></div>
+<h3>D1 ·（周三）市区适应日（低强度，全天无爬坡）</h3>
+<blockquote><p>定位：用最轻松的一天让同行人适应湿热气候，同时把"烟火气"拉满。</p></blockquote>
+<table><thead><tr><th>时间</th><th>安排</th><th>要点</th></tr></thead><tbody>
+<tr><td>08:00–10:00</td><td><strong>曼丢村早市</strong>（免费）</td><td>距市区约10km/20分钟。村民自营傣家早市，香茅草烤鱼、菠萝紫米饭、热带水果；看千年古井/古树/佛塔。8:00–12:00 营业，过午冷清</td></tr>
+<tr><td>10:30–13:00</td><td><strong>曼听公园</strong>（成人40/半价20元）→ <strong>总佛寺</strong>（免费）</td><td>两景点相连可串联。1300年傣王御花园，平地园林；免费表演：鹦鹉9:50/12:00、御象10:30/14:50。进总佛寺须着装过膝、脱鞋</td></tr>
+<tr><td>13:00–15:30</td><td>午餐 → 酒店午休/泳池</td><td>午后雷雨时段，正好休整</td></tr>
+<tr><td>15:30–17:00</td><td>自由：曼阁水果市场买水果，或酒店泳池</td><td>热带水果价格实惠</td></tr>
+<tr><td>18:30–21:30</td><td><strong>告庄西双景+星光夜市</strong>（免费）</td><td>大金塔 19:30 左右亮灯最佳；六国水上市场、8000+摊位；晚餐夜市傣味。<strong>老人错峰：18:30 前到、别等深夜散场</strong>；<strong>刷身份证入园</strong></td></tr>
+</tbody></table>
+<ul><li>
+<strong>备选替换</strong>：若想看大型演出，曼听"澜沧江·湄公河之夜"晚会（普通280/VIP380元/人，1.2米以上儿童<strong>无半价需全票</strong>，同行人约1400元）——<strong>不建议默认安排</strong>：性价比评价一般、露天项目（放水灯/篝火）8月雨季可能取消。
+</li><li>
+<strong>雨天预案</strong>：改酒店泳池+市区"聚匠非遗中心"（傣陶+傣纸，约80–120元/人，2–3小时，室内）。
+</li></ul>
+<h4>今日动线与视频</h4>
+<h4>D1 ·（周三）市区适应日</h4><div id="map-2-0" class="map" style="height:320px;border:1px solid #d0d7de;border-radius:8px;"></div>
+<div class="videos"><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1FZ421m7dh&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】告庄西双景 · 星光夜市</strong><span class="vsub">JASON刘雨鑫（知名旅行博主）· 2024-02 · 3:38 · 16.3万播放 · 逛吃实拍</span><a href="https://www.bilibili.com/video/BV1FZ421m7dh" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1iG4y1c7W3&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【避雷】告庄夜市写真大骗局</strong><span class="vsub">阮遇_（20万播放）· 2023-01 · 3:36 · 旅拍隐形消费提醒</span><a href="https://www.bilibili.com/video/BV1iG4y1c7W3" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV16DDhBjEEW&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观对比】西双版纳两大夜市实测</strong><span class="vsub">王老师TV · 2026-04 · 3:49 · 告庄 vs 江边夜市</span><a href="https://www.bilibili.com/video/BV16DDhBjEEW" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV19xK8zBEHd&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】曼听公园</strong><span class="vsub">接跑腿的月亮（博主）· 2025-06 · 12:20 · 攻略实拍</span><a href="https://www.bilibili.com/video/BV19xK8zBEHd" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1uc411w7JU&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【避坑】曼听公园出行避坑</strong><span class="vsub">HOHO不吃糖 · 2023-07 · 0:51 · 门票/时段提醒</span><a href="https://www.bilibili.com/video/BV1uc411w7JU" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1SW4y1w71N&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观】曼听公园值不值得去</strong><span class="vsub">Y我在人间捡故事 · 2024-01 · 1:51 · 优缺点分析</span><a href="https://www.bilibili.com/video/BV1SW4y1w71N" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1kx4y1S7dY&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】西双版纳总佛寺</strong><span class="vsub">独角兽漫游记（博主）· 2024-03 · 15:35 · 南传佛教圣地实拍</span><a href="https://www.bilibili.com/video/BV1kx4y1S7dY" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1dzFee5ELV&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观】曼听+总佛寺房车实录</strong><span class="vsub">郭郭的旅行 · 2025-02 · 6:22 · 实测（总佛寺未找到批判向素材）</span><a href="https://www.bilibili.com/video/BV1dzFee5ELV" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1QoFTz4E95&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】曼丢村</strong><span class="vsub">大海去旅行（博主）· 2026-02 · 9:11 · 3.6万播放 · 傣族古村寨实拍</span><a href="https://www.bilibili.com/video/BV1QoFTz4E95" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1VC4y1e7s8&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观对比】曼丢村商业化</strong><span class="vsub">星辰大海1023 · 2024-01 · 3:57 · 与古朴曼掌村对比</span><a href="https://www.bilibili.com/video/BV1VC4y1e7s8" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1vT411D7vA&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观】曼丢寨坑不坑</strong><span class="vsub">大叔小宝自驾游 · 2023-02 · 6:11 · 旅行避坑实测</span><a href="https://www.bilibili.com/video/BV1vT411D7vA" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div></div>
+<h3>D2 ·（周四）植物园日（经典必去）</h3>
+<blockquote><p>定位：版纳最值得的一天。<strong>只游西区+电瓶车</strong>（官网亦建议年长/行动不便者只游西区）；东区需爬山，同行长者不参加。</p></blockquote>
+<table><thead><tr><th>时间</th><th>安排</th><th>要点</th></tr></thead><tbody>
+<tr><td>07:30</td><td>出发，自驾约1小时（小磨高速，勐仑出口）</td><td>趁凉爽出发</td></tr>
+<tr><td>08:30–13:00</td><td><strong>中科院西双版纳热带植物园·西区</strong>（成人80/半价40元；电瓶车西区50元/人）</td><td>王莲池（<strong>7–8月王莲最佳观赏期</strong>）、百花园、奇花异卉园、棕榈园。电瓶车站点式游览，强度低</td></tr>
+<tr><td>13:00–14:00</td><td>勐仑镇午餐（傣味）</td><td>—</td></tr>
+<tr><td>14:00–16:00</td><td>西区收尾或<strong>提前返程</strong></td><td>午后雷雨高发，16:00 前返程更稳妥</td></tr>
+<tr><td>16:00–17:30</td><td>返程回市区</td><td>若途中遇强降雨，服务区暂避</td></tr>
+<tr><td>晚上</td><td>酒店休整/泳池</td><td>给老人孩子充电</td></tr>
+</tbody></table>
+<ul><li>
+<strong>要点</strong>：门票实名制，<strong>必须带身份证原件</strong>；园内需购电瓶车（西区50元/人），全园步行"大到走到怀疑人生"；热气球受天气/航空管制影响大、易取消，不推荐花钱赌。
+</li><li>
+<strong>备选替换</strong>：若当天暴雨预警，改市区<strong>热带花卉园</strong>（40元，2小时，轻松）。
+</li><li>
+<strong>可选加餐</strong>：植物园夜游看萤火虫（数人内450元/场，需提前1天小程序预约，全程步行约1小时）——若孩子有兴趣且天气好可加，否则不安排。
+</li></ul>
+<h4>今日动线与视频</h4>
+<h4>D2 ·（周四）植物园日</h4><div id="map-3-0" class="map" style="height:320px;border:1px solid #d0d7de;border-radius:8px;"></div>
+<div class="videos"><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1teQ6YYE8K&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】中科院热带植物园</strong><span class="vsub">中国国家地理（权威媒体）· 2025-03 · 1:34 · 11.3万播放 · 狐主任实拍</span><a href="https://www.bilibili.com/video/BV1teQ6YYE8K" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1si4y1p7ZM&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【批判】植物园"套路"提醒</strong><span class="vsub">玥婆婆舰爷爷（4.6万播放）· 2024-01 · 9:21 · 园内导览/消费套路</span><a href="https://www.bilibili.com/video/BV1si4y1p7ZM" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1srK56AEWi&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观】植物园东西区+官方讲解</strong><span class="vsub">jhq319（素人实录）· 2026-07 · 27:58 · 东西区实测</span><a href="https://www.bilibili.com/video/BV1srK56AEWi" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div></div>
+<h3>D3 ·（周五）傣寨风土日（勐罕镇方向）</h3>
+<blockquote><p>定位："深入风土人情"核心日：活着的傣族村寨 + 综艺同款傣寨 + 非遗。</p></blockquote>
+<table><thead><tr><th>时间</th><th>安排</th><th>要点</th></tr></thead><tbody>
+<tr><td>08:30</td><td>出发，自驾约40分钟</td><td>—</td></tr>
+<tr><td>09:30–13:00</td><td><strong>傣族园</strong>（成人45/半价22.5元；电瓶车40元可选）</td><td>五个原生态傣寨：曼春满佛寺（<strong>1400多年历史</strong>）、傣家竹楼、傣锦/慢轮制陶；泼水场次 11:00–11:30 / 13:30–14:00 / 15:30–16:00（<strong>参加泼水需备换洗衣物+防水袋+防滑鞋</strong>，同行长者可旁观）</td></tr>
+<tr><td>13:00–14:00</td><td>橄榄坝午餐</td><td>傣味烧烤/菠萝饭</td></tr>
+<tr><td>14:30–17:00</td><td><strong>曼远村</strong>（车程约20–30分钟，进村免费）</td><td>《向往的生活》"蘑菇屋"打卡（约20元，2021年信息<strong>需核实</strong>）；<strong>鲜花造纸40元/人</strong>（孩子体验）；稻田+千年傣寨出片</td></tr>
+<tr><td>17:30–18:30</td><td>返程市区</td><td>—</td></tr>
+<tr><td>晚上</td><td><strong>江边夜市</strong>（本地人夜市，比告庄便宜一半）</td><td>或告庄补逛</td></tr>
+</tbody></table>
+<ul><li>
+<strong>避坑</strong>：傣族园商业化评价两极（有"避雷"负面长评：电瓶车坑、门口票贩子），<strong>建议步行游览</strong>（园子不大），泼水旺季场次人满为患，早到占好位置；佛寺隶属佛教协会，若关闭以协会通知为准。
+</li><li>
+<strong>雨天预案</strong>：傣族园佛寺/竹楼室内参观；曼远村造纸在工坊内进行，影响小。
+</li></ul>
+<h4>今日动线与视频</h4>
+<h4>D3 ·（周五）傣寨风土日</h4><div id="map-4-0" class="map" style="height:320px;border:1px solid #d0d7de;border-radius:8px;"></div>
+<div class="videos"><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1KF4m137E1&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观】傣族园值不值得去</strong><span class="vsub">大铮安妮漫游记 · 2024-02 · 7:42 · 85 元值不值实测</span><a href="https://www.bilibili.com/video/BV1KF4m137E1" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1tFYWzjEUz&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观】傣族园隐形花费</strong><span class="vsub">班的旅行日记 · 2025-08 · 3:46 · 门票/电瓶车费用提醒</span><a href="https://www.bilibili.com/video/BV1tFYWzjEUz" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV14F4m1A7Xs&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】曼远村</strong><span class="vsub">阿树旅拍100个乡村（博主）· 2024-04 · 41:50 · 3.8万播放 · 中缅边境傣寨实拍</span><a href="https://www.bilibili.com/video/BV14F4m1A7Xs" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1Ucf1BxE1s&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观反思】曼远村还是"向往的生活"吗</strong><span class="vsub">赵远野 · 2026-02 · 13:20 · 综艺滤镜 vs 现实</span><a href="https://www.bilibili.com/video/BV1Ucf1BxE1s" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1NK411z7QH&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【争议】"蘑菇屋"让人失望</strong><span class="vsub">大白慢游记 · 2022-12 · 8:21 · 蘑菇屋实景与期待落差</span><a href="https://www.bilibili.com/video/BV1NK411z7QH" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div></div>
+<h3>D4 ·（周六）雨林与非遗日（勐养镇方向）</h3>
+<blockquote><p>定位：亚洲象 + 非遗手作三件套，一东一西都在勐养镇方向，顺路串联。晚上住告庄，赶上周末最热闹的星光夜市。</p></blockquote>
+<table><thead><tr><th>时间</th><th>安排</th><th>要点</th></tr></thead><tbody>
+<tr><td>07:30</td><td>出发，自驾约50分钟（G213）</td><td>—</td></tr>
+<tr><td>08:30–12:00</td><td><strong>野象谷</strong>（成人约58/半价约30元；索道单程50/往返70元）</td><td><strong>高空观象栈道平缓、老人友好</strong>（体力强度低-中）；看亚洲象博物馆、蝴蝶园；<strong>观野象靠运气</strong>（靠水边/索道中段机会大）；<strong>动物福利考量：只看"自然行为展示"，不参加喂象（30–80元）、合影</strong>——见第 4 章"野象谷争议"如实说明</td></tr>
+<tr><td>12:00–13:00</td><td>勐养镇午餐</td><td>—</td></tr>
+<tr><td>13:30–15:30</td><td><strong>曼掌村</strong>（回程顺路约20–30分钟，进村免费）</td><td>非遗性价比王：<strong>慢轮制陶约30元 + 鲜花造纸20–30元 + 贝叶经刻写20元 + 织锦30元</strong>，100元内集齐"陶+纸+贝叶经"三件手作；项目多在棚下/室内，雨天可正常进行</td></tr>
+<tr><td>16:00–17:30</td><td>返程市区，入住告庄</td><td>若遇午后雷雨，先在曼掌村避雨</td></tr>
+<tr><td>晚上</td><td><strong>告庄星光夜市</strong>（周六最热闹）</td><td>最后一晚的仪式感；或酒店泳池</td></tr>
+</tbody></table>
+<ul><li>
+<strong>备选A（亲子在地升级）</strong>：上午改<strong>基诺山雨林徒步</strong>（距市区40分钟；么卓线约6km、爬升少，含割胶/高空秋千/树降/种树领证书；散拼198–298元/人、独立小团约480元/人含向导；雨靴约35元/双）。<strong>提示</strong>：儿童完全适合（亲子口碑最佳项目）；<strong>同行长者建议只走前段或在起点村寨休整</strong>（6km雨林徒步对她偏强）；暴雨时涉水/秋千项目可能停运。
+</li><li>
+<strong>备选B（茶山避暑）</strong>：全天改<strong>南糯山</strong>（免费进山/茶王树景区约40元，距市区40分钟–1小时；乘车进寨看约800年"茶树王"+品茶；制茶体验约180元/人，<strong>8月非采茶季采茶环节可能暂停、压饼可做</strong>）。
+</li><li>
+<strong>备选C（边境一日）</strong>：全天改<strong>打洛口岸+独树成林+勐景来</strong>（车程约2小时；需身份证，儿童带户口簿；2026年6月实测边境游萧条，<strong>出发前电话确认口岸开放</strong>）——详见第 4 章"扩展包"。
+</li></ul>
+<h4>今日动线与视频</h4>
+<h4>D4 ·（周六）雨林与非遗日</h4><div id="map-5-0" class="map" style="height:320px;border:1px solid #d0d7de;border-radius:8px;"></div>
+<div class="videos"><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1wFC7BbEjt&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】野象谷观象</strong><span class="vsub">其某人的生活日志 · 2025-11 · 14:52 · 景区观象实拍</span><a href="https://www.bilibili.com/video/BV1wFC7BbEjt" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1m24y1t7WL&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【批判】野象谷门票是坑？</strong><span class="vsub">亨妈在路上（1.3万播放）· 2023-03 · 6:00 · 避坑玩法</span><a href="https://www.bilibili.com/video/BV1m24y1t7WL" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1XprQY5E2G&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【避雷】野象谷避雷</strong><span class="vsub">Tyche堤喀呢 · 2025-01 · 1:52 · "白花钱"提醒</span><a href="https://www.bilibili.com/video/BV1XprQY5E2G" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1njR6YdEkS&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【争议】野象谷大象科普园</strong><span class="vsub">纳兹多拉格尼鲁（素人）· 2025-04 · 2:56 · 圈养象展演争议实拍</span><a href="https://www.bilibili.com/video/BV1njR6YdEkS" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV118411s7gn&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【推荐】曼掌村</strong><span class="vsub">主厨广坦（知名美食博主）· 2022-10 · 8:13 · 5.7万播放 · 傣家美食+古村实拍</span><a href="https://www.bilibili.com/video/BV118411s7gn" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1es4y1L7nQ&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观对比】曼掌 vs 曼远怎么选</strong><span class="vsub">大叔小宝自驾游 · 2023-03 · 3:57 · 亲子游选择参考</span><a href="https://www.bilibili.com/video/BV1es4y1L7nQ" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1ufd2BREf7&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【客观】时隔三年曼掌变化</strong><span class="vsub">陈钧泽啊 · 2026-04 · 6:50 · 现状实测</span><a href="https://www.bilibili.com/video/BV1ufd2BREf7" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div></div>
+<h3>D5 ·（周日）返程日（睡懒觉 + 中午轻量活动）</h3>
+<blockquote><p>已定节奏：上午睡懒觉、中午轻量活动、下午或晚上返程。</p></blockquote>
+<table><thead><tr><th>时间</th><th>安排</th><th>要点</th></tr></thead><tbody>
+<tr><td>自然醒（约9:00–10:00）</td><td>酒店早餐/brunch</td><td>慢节奏收尾，不赶景点</td></tr>
+<tr><td>11:00</td><td><strong>退房</strong>（行李寄存前台或装车）</td><td>为中午活动腾出时间</td></tr>
+<tr><td>11:00–13:00</td><td><strong>中午轻量活动</strong>（按航班余量选1–2项）：①<strong>曼阁水果市场</strong>买热带水果带回家（约40分钟–1小时，有棚）②<strong>告庄白天逛</strong>（大金塔/六国市场白天人少，拍照+买伴手礼）③<strong>热带花卉园</strong>（市区，40元，约1.5–2小时，轻松）④酒店泳池</td><td>中午正值高温+可能雷雨时段，选有棚/室内占比高的项目；<strong>曼丢村早市仅上午营业，此日不再安排</strong></td></tr>
+<tr><td>13:00–14:00</td><td>午餐（市区傣味，吃完直接去机场）</td><td>—</td></tr>
+<tr><td>起飞前2小时</td><td>到嘎洒机场，<strong>先还车（加满油、检查单据）再值机</strong></td><td>下午班约13:30动身；晚班按班次顺延</td></tr>
+<tr><td>起飞前1小时</td><td>安检候机</td><td>—</td></tr>
+</tbody></table>
+<ul><li>
+<strong>提醒</strong>： 为返程高峰日，安检排队可能较长，<strong>建议至少提前2小时到机场</strong>；还车前确认油量与单据。
+</li><li>
+<strong>弹性</strong>：若航班为傍晚班次（18:00后），中午可从容安排两项活动+一顿慢午餐；若为下午班（15:00–16:00），选1项轻量活动即可，13:30前动身去机场。
+</li></ul>
+<h4>今日动线</h4>
+<h4>D5 ·（周日）返程</h4><div id="map-6-0" class="map" style="height:320px;border:1px solid #d0d7de;border-radius:8px;"></div>
+<blockquote><p>返程日以轻量活动收尾，无新增动线影像。</p></blockquote>
+<hr>
+<h2>4. 景点库（真实优缺点 · 四级分类）</h2>
+<blockquote><p>体力强度口径：低=平路可推车/轮椅；低-中=缓坡或可选代步；中=爬坡或长距离步行；中-高=爬梯+高空+湿滑。所有价格均为成人价，优惠见括号。</p></blockquote>
+<h3>4.1 经典必去</h3>
+<h4>中科院西双版纳热带植物园（勐仑，5A）</h4>
+<ul><li>
+<strong>位置/车程</strong>：距景洪约55公里，自驾约1小时。
+</li><li>
+<strong>费用</strong>：成人80元；儿童、60–69岁老人半价40元；70+免票。电瓶车西区50元/人。实名制，需身份证原件。
+</li><li>
+<strong>开放/时长</strong>：8:00–18:00；西区约2.5小时，全园4–5小时。
+</li><li>
+<strong>优点</strong>：中国最大最全的热带植物园（1125公顷、1.4万+活植物）；<strong>王莲最佳观赏期7–8月</strong>正对行程；电瓶车站点式、强度低；科普教育强，适合儿童；可夜游看萤火虫。
+</li><li>
+<strong>缺点/坑</strong>：园区极大，不坐电瓶车步行强度高；东区需爬山（<strong>同行长者不做，官网也建议年长者只游西区</strong>）；8月底暑期尾波+雨季，游览车排队；热气球易取消；全天行程对老人偏长。
+</li><li>
+<strong>体力</strong>：低（西区+电瓶车）/ 高（东区）。
+</li><li>
+<strong>备选</strong>：热带花卉园（市区，40元，轻松）。
+</li></ul>
+<h4>告庄西双景（含星光夜市、大金塔、六国水上市场）</h4>
+<ul><li>
+<strong>位置</strong>：景洪市区澜沧江畔，机场打车约15分钟/30元。
+</li><li>
+<strong>费用</strong>：景区与大金塔免费；六国水上市场乘水果船60元/人。<strong>平时免费，仅特殊活动期收费</strong>（2025年国庆曾收68元/人/4天，官方已回应；2026年8月行程理论上免费，<strong>需核实</strong>）。
+</li><li>
+<strong>开放/时长</strong>：夜市约18:00后亮灯至深夜；建议晚间2–3小时。
+</li><li>
+<strong>优点</strong>：免费、氛围最强、东南亚风情集中；适合老人晚间散步+孩子逛吃；傣装租赁/旅拍/傣陶DIY丰富（现场买傣装自拍十几元起，比旅拍套餐划算）。
+</li><li>
+<strong>缺点/坑（如实）</strong>：<strong>严重商业化</strong>——同款傣味人均比市区贵近一倍、老挝冰咖啡48元"喝的是氛围"，购物需砍价；<strong>人流量极大</strong>（旺季"转身都难"，8月底暑期尾波仍属高峰）；2025年8月有"强制抖音扫码入园"舆情（官方已整改为4种方式，<strong>刷身份证即可</strong>）；旅拍199元低价套餐有隐形消费（假睫毛/彩绘/后期加价）；住主街一侧夜市噪音到凌晨。
+</li><li>
+<strong>体力</strong>：低，但拥挤度是主要挑战（老人建议18:30前到、错峰）。
+</li><li>
+<strong>备选</strong>：江边夜市（本地人夜市，便宜）。
+</li></ul>
+<h4>曼听公园（市区，傣王御花园）+ 西双版纳总佛寺（免费）</h4>
+<ul><li>
+<strong>位置</strong>：景洪市区曼听路，距市中心约2公里；两景点相连，可串联。
+</li><li>
+<strong>费用</strong>：曼听成人40/半价20元（儿童、60–69岁老人半价，70+免票）；总佛寺免费。晚会另收280（普通）/380（VIP）元/人，<strong>儿童1.2米以上需全票无半价</strong>。
+</li><li>
+<strong>开放/时长</strong>：曼听日间约8:00–17:00（口径不一，<strong>需核实</strong>）；建议日间2–3小时。
+</li><li>
+<strong>优点</strong>：1300年傣王御花园，市区零成本交通；平地园林<strong>对老人极友好</strong>；园内免费表演丰富（鹦鹉/御象/傣王出巡）；与总佛寺串联是性价比最高组合；总佛寺南传佛教氛围真实、本地信徒多。
+</li><li>
+<strong>缺点/坑</strong>：晚会票价偏贵且儿童无优惠（同行人约1400元），评价"性价比一般、偏旅游团风格"；<strong>晚会放水灯/篝火为露天项目，雨季可能取消</strong>；日间园子不大，40元门票被认为性价比中等；网红机位人多排队。
+</li><li>
+<strong>体力</strong>：低。注意：进总佛寺<strong>禁吊带/无袖、裙裤须过膝、殿内脱鞋、多数禁拍、禁旅拍</strong>——8月炎热务必备过膝裤/裙。
+</li></ul>
+<h4>傣族园（橄榄坝，五个原生态傣寨）</h4>
+<ul><li>
+<strong>位置/车程</strong>：距景洪约27公里，自驾约40分钟。
+</li><li>
+<strong>费用</strong>：成人45/半价22.5元；电瓶车40元（<strong>需核实</strong>，有游客称60元）。
+</li><li>
+<strong>开放/时长</strong>：8:00–17:00；建议3–4小时。
+</li><li>
+<strong>优点</strong>：五个原生态傣族村寨，保存最完好的傣家竹楼；<strong>曼春满佛寺1400多年历史</strong>；"天天泼水节"三场（11:00/13:30/15:30）不受季节限制，亲子体验强；非遗（傣锦/贝叶经/慢轮制陶）集中。
+</li><li>
+<strong>缺点/坑</strong>：商业化严重，有"避雷"负面长评（电瓶车坑、票贩子素质差、渡口没看头）；泼水旺季场次人满为患（有游客坐等2小时）；门票+电瓶车性价比评价两极；佛寺属佛教协会管辖，关闭以协会通知为准。
+</li><li>
+<strong>体力</strong>：低（平坝村寨）。同行长者无压力；孩子泼水备换衣+防水袋。
+</li></ul>
+<h3>4.2 值得一去</h3>
+<h4>野象谷（勐养）——含争议如实说明</h4>
+<ul><li>
+<strong>位置/车程</strong>：距景洪约36公里，自驾50分钟–1小时。
+</li><li>
+<strong>费用</strong>：成人约58元（2025-11平台价；政府定价曾60–65元，<strong>需核实</strong>）；儿童、60–69岁半价约30元，70+免票；索道单程50/往返70元；喂象30–80元、合影10–50元（<strong>不建议参加</strong>）。
+</li><li>
+<strong>开放/时长</strong>：8:00–18:00；建议3–4小时（南门进，景点集中）。
+</li><li>
+<strong>优点</strong>：中国唯一能安全观测野生亚洲象的景区；<strong>高空观象栈道平缓、老人友好</strong>；索道俯瞰雨林；大象"自然行为展示"对孩子有科普价值；雨林生物多样性集中（蝴蝶园/百鸟园）。
+</li><li>
+<strong>缺点/坑（如实）</strong>：<strong>动物福利争议</strong>——全国首例亚洲象公益诉讼（2023年起诉、2024年5月二审终审维持原判，法院认为"证据不足以证明故意虐待"），官方2023年7月已把"大象表演"改为"大象行为展示"（<strong>项目仍在进行，并非废除</strong>）；<strong>观野象靠运气</strong>；门票+索道+互动轻松超200元/人；设施老旧、暑期人多；栈道湿滑、蚊虫多。
+</li><li>
+<strong>体力</strong>：低-中（栈道平缓+索道代步；不推荐徒步全程约2小时）。
+</li><li>
+<strong>立场建议</strong>：若家人对圈养象展演有顾虑，<strong>只看栈道与博物馆、不参加喂象/合影</strong>，或直接换备选（见下）。
+</li><li>
+<strong>备选</strong>：基诺山雨林徒步（见4.2）、原始森林公园（景洪近郊，孔雀放飞+平缓栈道）。
+</li></ul>
+<h4>曼掌村（傣族手工艺村，非遗性价比王）</h4>
+<ul><li>
+<strong>位置/车程</strong>：勐养镇，距市区约40分钟，进村+停车免费。
+</li><li>
+<strong>费用</strong>：慢轮制陶约30元（约1小时）、鲜花造纸20–30元（约40分钟）、贝叶经20元、织锦30元——100元内集齐三件手作；村内傣味餐人均30–40元。
+</li><li>
+<strong>开放</strong>：全天，部分项目需预约，建议9点前到（先做陶）。
+</li><li>
+<strong>优点</strong>：真实傣寨+可动手的非遗体验，老人可旁观可动手、孩子兴趣高；雨天在棚下可进行；离野象谷/基诺山方向顺路。
+</li><li>
+<strong>缺点</strong>：部分项目需预约；夏季蚊虫多需驱蚊；象脚鼓制作价格<strong>需核实</strong>。
+</li><li>
+<strong>体力</strong>：低。
+</li></ul>
+<h4>基诺山雨林徒步（亲子在地首选）</h4>
+<ul><li>
+<strong>位置/车程</strong>：距市区约40分钟（213国道，导航"基诺山巴朵村/巴飘村"）；进村免费。
+</li><li>
+<strong>费用</strong>：散拼198–298元/人、独立4–6人团约480元/人（含向导+保险+雨林餐）；雨靴租/购约35元/双。
+</li><li>
+<strong>线路</strong>：么卓线（约6km、爬升少，新手友好，含割胶/秋千/树降/种树证书）；巴朵线（约4km水路版，竹筏+水上秋千）；小普溪线（6–8km进阶）。
+</li><li>
+<strong>优点</strong>：版纳亲子口碑最佳项目（"娃最念念不忘"）；深入基诺族聚居区，风土人情浓度高。
+</li><li>
+<strong>缺点/坑</strong>：涉水、泥泞、蚊虫多；<strong>同行长者建议只走前段或村寨休整</strong>（6km对低强度偏强）；暴雨时涉水/秋千项目可能停运；雨季溪水上涨路滑。
+</li><li>
+<strong>体力</strong>：中低，但环境挑战大。
+</li></ul>
+<h4>曼远村（《向往的生活》拍摄地）</h4>
+<ul><li>
+<strong>位置/车程</strong>：勐罕镇，距市区约1小时；进村免费。
+</li><li>
+<strong>费用</strong>：蘑菇屋约20元（<strong>需核实</strong>）；鲜花造纸40元/人（比曼掌贵10–20元）。
+</li><li>
+<strong>优点</strong>：千年傣寨+稻田+综艺同款打卡；村内平缓，老人儿童皆宜。
+</li><li>
+<strong>缺点</strong>：网红化后旺季人多；纯手作性价比不如曼掌村。
+</li><li>
+<strong>体力</strong>：低。与傣族园同方向，可串一天。
+</li></ul>
+<h4>曼丢村早市（傣家烟火气，老人极友好）</h4>
+<ul><li>
+<strong>位置/车程</strong>：景洪市嘎洒镇，距市区约10公里/20分钟；免费。
+</li><li>
+<strong>时间</strong>：每天约8:00–12:00，村口处。
+</li><li>
+<strong>优点</strong>：村民自营、原汁原味（香茅草烤鱼、菠萝紫米饭、果蔬）；可看千年古井/古树/佛塔；与嘎洒温泉（约30元）可组合；体力极低，两位老人均无压力。
+</li><li>
+<strong>缺点</strong>：规模不大、需早起，过午冷清；雨天摊位可能减少。
+</li></ul>
+<h4>勐远仙境（雨林+溶洞）</h4>
+<ul><li>
+<strong>位置/车程</strong>：距景洪约100公里，自驾约1.5小时。
+</li><li>
+<strong>费用</strong>：基础票约55元（近期实测价，常规游）；溶洞/探险套餐另计。
+</li><li>
+<strong>优点</strong>：4km平缓丛林路线"新手无压力"；溶洞恒温约18℃避暑；负氧离子高；雨林大餐（人均约50元）；近期实时4.8/5分。
+</li><li>
+<strong>缺点/坑</strong>：距市区远；探洞涉水会湿身需备换衣；洞内部分区域无信号；雨季山路湿滑、涉水项目可能停运。
+</li><li>
+<strong>体力</strong>：常规游低（<strong>同行长者可走木栈道+溶洞常规段</strong>）；探险/穿越套餐不适合60+。
+</li><li>
+<strong>匹配</strong>：本次行程时间紧，作为"扩展包"备选（见4.4）。
+</li></ul>
+<h4>南糯山茶山（避暑+茶文化）</h4>
+<ul><li>
+<strong>位置/车程</strong>：距景洪机场约33公里，自驾40分钟–1小时，山路较窄。
+</li><li>
+<strong>费用</strong>：进山免费；茶王树景区约40元（<strong>需核实</strong>）；采茶+炒茶+压饼约180元/人；一日游136元起。
+</li><li>
+<strong>优点</strong>：海拔高凉爽、人少、真实哈尼村寨；看约800年"茶树王"（中国最古老人工栽培型茶树）；亲手做茶饼带走。
+</li><li>
+<strong>缺点/坑</strong>：山路颠簸、蚊虫多、设施有限；<strong>8月非采茶季，采茶环节可能暂停（压饼可做）</strong>；雨天路滑。
+</li><li>
+<strong>体力</strong>：中偏下；老人可车到寨子后短走或只看茶园品茶。
+</li></ul>
+<h4>勐景来（中缅第一寨）</h4>
+<ul><li>
+<strong>位置/车程</strong>：打洛镇，距景洪约120公里/2小时（与打洛同方向）。
+</li><li>
+<strong>费用</strong>：成人约50–65元；6–18岁、60–69岁半价，70+免票。
+</li><li>
+<strong>优点</strong>：真实傣寨活态博物馆（慢轮制陶/傣锦/古法榨糖/竹编非遗仍在传承）；村寨平缓老人友好；4.5/5分（330评）。
+</li><li>
+<strong>缺点/坑</strong>：距市区远；2026年6月实测游客稀少、配套冷清；受边境管控影响跨境项目可能关闭。
+</li><li>
+<strong>体力</strong>：低。与打洛/独树成林串线。
+</li></ul>
+<h3>4.3 可去可不去</h3>
+<h4>独树成林（打洛，4A）</h4>
+<ul><li>
+<strong>位置/车程</strong>：打洛镇边境贸易区，距景洪约120公里/2小时。
+</li><li>
+<strong>费用</strong>：成人35–85元说法不一（<strong>需核实</strong>）；电瓶车另付20–50元。
+</li><li>
+<strong>优点</strong>：900余年古榕（气生根成林）、中国远征军遗址、可远眺缅甸群山与界碑，边境奇观独特。
+</li><li>
+<strong>缺点/坑</strong>：<strong>往返车程4小时+</strong>；2024-12实测"景点少、性价比不高"；边境游受打击电诈影响萧条（2026年6月实测当天唯一旅游团）。
+</li><li>
+<strong>体力</strong>：低（可电瓶车）。<strong>建议</strong>：仅在走打洛方向时顺路，不值得专程。
+</li></ul>
+<h4>打洛口岸（中缅边境）</h4>
+<ul><li>
+<strong>费用</strong>：国门拍照免费；部分区域可能需边境通行证（约30元，带身份证现场办理，<strong>需核实</strong>）；无人机需报备、勿越界。
+</li><li>
+<strong>优点</strong>：国家一类口岸、"一脚跨两国"仪式感；2025年出入境220万人次。
+</li><li>
+<strong>缺点/坑</strong>：可玩性一般；边境管控动态；山区公路雨季落石积水。
+</li><li>
+<strong>体力</strong>：低。<strong>建议</strong>：与勐景来串线时顺路，专程不推荐。
+</li></ul>
+<h3>4.4 本次不安排（及原因）</h3>
+<table><thead><tr><th>地点</th><th>原因（如实）</th><th>何时值得去</th></tr></thead><tbody>
+<tr><td><strong>望天树景区</strong>（勐腊）</td><td><strong>单程2.5–3小时（约170公里）</strong>，往返5–6小时在路上，与"从容轻松"原则冲突；8月雨季山路落石风险高</td><td>若专程去勐腊/住勐腊县城一晚；树冠走廊（36米高、需爬梯）对同行长者不适合，同行人走属中-高强度高空项目</td></tr>
+<tr><td><strong>基诺山寨</strong>（基诺族文化景区）</td><td><strong>门票160元/人且老人儿童均无优惠</strong>（仅1.2米以下免票），数人800元；<strong>大量台阶无代步</strong>，对同行长者不友好；商业化评价两极</td><td>想看基诺族歌舞+愿意爬台阶/接受票价时；更推荐免费的基诺山徒步+村寨</td></tr>
+<tr><td><strong>勐远仙境/南糯山</strong></td><td>本次 4 个完整游玩日已排满；两者均为优质备选</td><td>若某天想替换（见 Day4 备选B 与"扩展包"）</td></tr>
+</tbody></table>
+<p><strong>扩展包（时间/精力富余时替换某日）</strong>：</p>
+<ol><li>
+<strong>打洛边境一日</strong>：勐景来（约2h）+ 独树成林（40分钟–1h）+ 打洛口岸打卡——需身份证（儿童户口簿），<strong>出发前电话确认口岸开放与查验要求</strong>；车程长，适合愿意开2小时车、想给孩子"边境教育"的家庭。
+</li><li>
+<strong>勐远仙境一日</strong>：雨林徒步+溶洞常规游（同行长者可行），车程1.5小时。
+</li><li>
+<strong>南糯山半日-一日</strong>：茶山避暑+品茶+压饼。
+</li></ol>
+<hr>
+<h2>5. 住宿方案</h2>
+<h3>预算与原则</h3>
+<ul><li>
+<strong>每晚2间房；200–400元/间/晚，性价比高可放宽至500元/间/晚</strong>。
+</li><li>
+2间房尽量同店或就近，方便照看老人孩子。
+</li><li>
+8月暑期旺季，<strong>提前1–2个月预订</strong>；价格均为参考，<strong>以预订平台当日为准</strong>。
+</li></ul>
+<h3>三个区域对比</h3>
+<table><thead><tr><th>区域</th><th>参考酒店类型</th><th>参考价（元/间/晚）</th><th>优点</th><th>缺点</th></tr></thead><tbody>
+<tr><td><strong>告庄西双景内</strong></td><td>品质客栈：悦兮、玺悦澜山、七夕主题、渝澜等</td><td>300–500</td><td>夜市下楼即达、东南亚氛围、离机场近</td><td><strong>停车难</strong>（自驾需确认客栈车位）；主街一侧夜市噪音到凌晨；吃喝溢价</td></tr>
+<tr><td><strong>景洪市区</strong></td><td>全季、亚朵等连锁</td><td>280–450</td><td>停车方便、配套全、性价比高；白天出城各方向都顺</td><td>无夜市氛围</td></tr>
+<tr><td><strong>澜沧江江畔</strong></td><td>云上轩、微澜江景、锦冠悦庄等</td><td>300–500</td><td>江景、度假感</td><td>数量少、需早订</td></tr>
+</tbody></table>
+<h3>推荐方案（三选一）</h3>
+<p><strong>方案A（推荐）</strong>：告庄1晚（抵达夜）→ 市区3晚（D1–D3）→ 告庄1晚（D4周末夜）</p>
+<ul><li>
+到达夜住告庄：离机场近、当晚只休息；中间住市区：白天出车方便、停车省心；最后一晚住告庄：周六夜市最热闹，第二天上午逛告庄白天再走。
+</li><li>
+代价：搬2次家（2间房行李），每次约30分钟。
+</li></ul>
+<p><strong>方案B（最省事）</strong>：全程市区/江畔5晚，晚上打车或开车去告庄夜市（车停告庄外围或打车往返）。</p>
+<ul><li>
+适合怕折腾的家庭；代价：夜市往返+停车麻烦。
+</li></ul>
+<p><strong>方案C（夜市控）</strong>：全程告庄5晚，<strong>前提是选定有停车位的客栈并电话确认</strong>。</p>
+<ul><li>
+代价：白天每次出城要穿过拥挤区；停车位紧张。
+</li></ul>
+<blockquote><p><strong>订房提醒</strong>：① 电话确认停车位（方案A/C关键）；② 告庄选靠里、非主街一侧房间避噪音；③ 2间房尽量同楼层；④ 携程/飞猪比价时留意"暑期特惠"与"连住优惠"。</p></blockquote>
+<hr>
+<h2>6. 交通与自驾</h2>
+<h3>航班</h3>
+<ul><li>
+示例出发地机场 → 嘎洒机场直飞，约1小时50分–2小时10分；川航/东航/西藏航/成都航等执飞。
+</li><li>
+暑期单程参考400–900元；<strong>8月非全年最旺季</strong>（最旺季为春节/泼水节/国庆），属雨季+暑期次旺季，<strong>提前1–2个月订</strong>价格更稳。
+</li><li>
+抵达日选21:00前落地班次；返程时刻请确认（决定D5方案）。
+</li></ul>
+<h3>租车</h3>
+<ul><li>
+<strong>嘎洒机场有 一嗨/神州/携程 门店</strong>，机场取还车最方便。
+</li><li>
+车型：数人+行李+安全座椅，<strong>建议中型SUV（5座，250–450元/天）或7座（450–700元/天）</strong>；行李多选7座。
+</li><li>
+<strong>儿童安全座椅</strong>：平台常缺货，<strong>自备最稳</strong>；若租约20–50元/天，务必提前电话确认。
+</li><li>
+保险/押金：押金约2000–5000元预授权；<strong>建议购买不计免赔（约40–80元/天）</strong>，雨季山路剐蹭风险高。
+</li><li>
+还车前加满油、留好单据照片。
+</li></ul>
+<h3>自驾路况（8月雨季重点）</h3>
+<ul><li>
+<strong>小磨高速及山区乡村公路临崖临河路段雨季易落石、积水</strong>；<strong>避开夜间山区行车</strong>；积水路段勿强行涉水（州文旅局2026-07汛期提示）。
+</li><li>
+打洛/勐腊方向山区公路有改造工程施工信息，出发前查路况。
+</li><li>
+停车：告庄难停（见住宿章）；景区停车场普遍10–20元/天或免费（植物园西门停车场免费）。
+</li></ul>
+<h3>边境证件（打洛/勐腊方向）</h3>
+<ul><li>
+中国公民：<strong>身份证</strong>（儿童带<strong>户口簿</strong>）即可通过检查站；私家车查验较严，配合即可。
+</li><li>
+磨憨方向<strong>自驾出境老挝</strong>才需护照+车辆手续（本次不去）。
+</li><li>
+边境管理区通行证：<strong>2026-04-15起可办电子版</strong>（手机可办，作备用）。
+</li><li>
+边境区域：勿越界、无人机需报备、随身带身份证。
+</li></ul>
+<hr>
+<h2>7. 预算估算（数人 · 中档 · 人民币）</h2>
+<table><thead><tr><th>项目</th><th>明细</th><th>中档合计</th></tr></thead><tbody>
+<tr><td>机票</td><td>往返约1000–1400元/人 × 5</td><td>5,000–7,000</td></tr>
+<tr><td>租车</td><td>6天5座SUV约300元/天×6 + 不计免赔约60×6 + 油费约500 + 停车约100</td><td>约2,700</td></tr>
+<tr><td>住宿</td><td>2间 × 5晚 × 约350元</td><td>约3,500</td></tr>
+<tr><td>门票</td><td>植物园约530（含电瓶车）+ 曼听约140 + 傣族园约200 + 野象谷约550（含索道）+ 曼远村约140（含造纸）</td><td>约1,600</td></tr>
+<tr><td>餐饮</td><td>数人 × 约100–120元/人/天 × 6天</td><td>3,000–3,600</td></tr>
+<tr><td>其他</td><td>打车/应急/伴手礼/防晒防蚊物资</td><td>1,000–2,000</td></tr>
+<tr><td><strong>合计</strong></td><td></td><td><strong>约1.7万–2.0万（区间1.5万–2.4万）</strong></td></tr>
+</tbody></table>
+<blockquote><p>弹性项：① 若加基诺山徒步（约300元/人×4）+1,200；② 若看曼听晚会同行人+1,400（不推荐）；③ 若走打洛方向+800–1,200（含门票油费）；④ 7座车比5座贵约200元/天。不含大额购物/旅拍。</p></blockquote>
+<hr>
+<h2>8. 打包清单</h2>
+<p><strong>证件类</strong>：同行人身份证（购票实名制必用）、儿童户口簿（备用+边境查验）、驾驶证、租车单据、机票/酒店订单截图。</p>
+<p><strong>衣物类</strong>（8月湿热+午后雨）：</p>
+<ul><li>
+速干短袖 ×5+（每人）、速干长袖/防晒衣（雨林防蚊防晒）、<strong>长裤+过膝裙各1（进佛寺必备）</strong>、薄外套（溶洞18℃/空调车）、防滑运动鞋+溯溪鞋（雨林/泼水）、拖鞋、雨衣/折叠伞（每人）、泳衣（酒店泳池）。
+</li></ul>
+<p><strong>防晒防蚊</strong>（重点，8月为登革热防控期）：</p>
+<ul><li>
+SPF50+防晒霜、遮阳帽、墨镜、<strong>强效驱蚊液/驱蚊贴（雨林徒步必备，晨昏尤甚）</strong>、止痒膏、芦荟胶（晒后修复）。
+</li></ul>
+<p><strong>药品</strong>：</p>
+<ul><li>
+肠胃药（蒙脱石散、黄连素——热带饮食+老人孩子肠胃最易中招）、退烧/感冒药、晕车药（山路）、创可贴、防蚊虫叮咬药膏、<strong>老人慢病常备药（足量）</strong>、儿童退烧药、体温计。
+</li></ul>
+<p><strong>电子/其他</strong>：手机+充电宝、防水手机袋（泼水/雨林）、儿童平板/绘本（航班与车程）、水壶、湿巾、小零食、双肩包（雨林徒步用）。</p>
+<hr>
+<h2>9. 行前/每日 Tips</h2>
+<h3>9.1 天气与穿着</h3>
+<ul><li>
+8月景洪：日均最高30–32℃、最低22–24℃，湿度75–87%（全年最高），<strong>平均19个雨天</strong>；典型节奏"上午晴热、午后到傍晚短时强降雨/雷暴"。
+</li><li>
+<strong>穿着口诀</strong>：速干+防晒+防蚊+随时可加薄外套；进佛寺那天带过膝裤/裙。
+</li><li>
+<strong>登革热防控期</strong>：晨昏穿长袖长裤、强驱蚊、避开积水草丛；出现发热及时就医。
+</li></ul>
+<h3>9.2 饮食</h3>
+<ul><li>
+必尝：香茅草烤鱼、菠萝紫米饭、傣味烧烤、撒撇（慎点，生食，老人孩子跳过）、热带水果（芒果/菠萝蜜/火龙果，曼阁市场便宜）。
+</li><li>
+<strong>肠胃防护</strong>：初到首日饮食清淡、别一次吃太多生冷；街边小吃选人多的摊；备足肠胃药；老人孩子多喝温水。
+</li><li>
+告庄夜市吃喝溢价明显（同类傣味可贵近一倍），想吃地道便宜的去江边夜市/市区小店。
+</li></ul>
+<h3>9.3 民俗礼仪</h3>
+<ul><li>
+<strong>进佛寺</strong>：禁吊带/无袖、裙裤<strong>过膝</strong>；殿内<strong>脱鞋</strong>；多数殿内<strong>禁拍</strong>；<strong>严禁旅拍/婚纱照进入</strong>；不指佛像、不喧哗。
+</li><li>
+<strong>访傣家</strong>：进竹楼<strong>脱鞋</strong>、不踩门槛、未经允许不摸小孩头（当地习俗）。
+</li><li>
+<strong>泼水节</strong>（傣族园"天天泼水"）：自愿参与，参与者备换衣；尊重被泼者意愿。
+</li><li>
+尊重僧侣与宗教场所，香火/功德自愿。
+</li></ul>
+<h3>9.4 避坑清单</h3>
+<ol><li>
+<strong>告庄入园</strong>：坚持刷<strong>身份证</strong>（2025年"强制抖音扫码"舆情后官方承诺4种方式）。
+</li><li>
+<strong>旅拍</strong>：199元低价套餐隐形消费多（假睫毛/彩绘/后期加价）；想拍照就现场买傣装自拍（十几元起）。
+</li><li>
+<strong>夜市购物</strong>：水果、银饰、手作<strong>砍价</strong>；"老挝冰咖啡48元"类高价网红饮品慎点。
+</li><li>
+<strong>野象谷</strong>：不参加喂象（30–80元）/合影；只看行为展示与栈道（动物福利考量）。
+</li><li>
+<strong>曼听晚会</strong>：儿童1.2米以上全票无优惠；露天项目雨季可能取消——<strong>出发前一天电话确认</strong>。
+</li><li>
+<strong>傣族园</strong>：门口票贩子勿理；建议步行（园不大），电瓶车性价比存疑。
+</li><li>
+<strong>门票预约</strong>：植物园实名制需身份证原件；本地宝提示景区执行"限量、预约、错峰"，<strong>热门景区（植物园/野象谷）建议提前1–2天在官方小程序/平台购票</strong>。
+</li><li>
+<strong>泼水装备</strong>：防水手机袋、换洗衣物、防滑鞋提前备好（景区买贵）。
+</li></ol>
+<p><strong>全城级警示视频</strong>（谨防低价团/强制消费，权威媒体与口碑博主）：</p>
+<div class="videos"><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1pqbX6fE1q&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【权威媒体】央视曝光西双版纳假"纯玩团"</strong><span class="vsub">央视财经（权威媒体）· 2026-08-16 · 4:45 · 6.4万播放 · 三处游玩五处购物，谨防低价团</span><a href="https://www.bilibili.com/video/BV1pqbX6fE1q" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1hH4y1w7w3&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【批判】西双版纳为啥不好玩</strong><span class="vsub">Nick逛吃杂货铺 · 2024-07 · 3:05 · 7871播放 · 版纳旅游总体反思</span><a href="https://www.bilibili.com/video/BV1hH4y1w7w3" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div><div class="vcard"><div class="vframe"><iframe src="https://player.bilibili.com/player.html?bvid=BV1aV4y1q7pA&autoplay=0&high_quality=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div><div class="vmeta"><strong>【批判】云南旅游处处踩坑</strong><span class="vsub">提不起来的鞋子 · 2023-07 · 8:48 · 1.3万播放 · 强制消费警示</span><a href="https://www.bilibili.com/video/BV1aV4y1q7pA" target="_blank" rel="noopener">▶ 打开视频页播放</a></div></div></div>
+<h3>9.5 老幼专项</h3>
+<ul><li>
+<strong>同行长者（低强度）</strong>：全程安排无压力项——曼丢早市（平地）、曼听（平地）、植物园西区电瓶车、傣族园电瓶车或慢走、野象谷栈道+索道；<strong>不安排</strong>：植物园东区、基诺山徒步全程、望天树走廊、基诺山寨台阶、傣族园泼水（可旁观）。
+</li><li>
+<strong>儿童（学龄儿童）</strong>：活动丰富（大象/鹦鹉表演、泼水、造纸、制陶、雨林徒步可选）；泼水/雨林备换衣与驱蚊；飞机/车程备电子设备与零食。
+</li><li>
+<strong>医疗</strong>：景洪主要医院——<strong>州人民医院（三级，有急诊+儿科）</strong>、景洪市第一人民医院（急诊医学科）；一心堂/健之佳连锁药店网点多；<strong>24小时药店少，夜间以急诊为主</strong>（出发前查好两家医院定位与电话）。
+</li><li>
+<strong>安全座椅</strong>：自备或提前确认租车行。
+</li></ul>
+<h3>9.6 安全与应急（主汛期）</h3>
+<ul><li>
+出行前查"西双版纳天气+地质灾害预警"；暴雨天不勉强出门、<strong>不涉水过积水路段、不在夜间走山区公路</strong>。
+</li><li>
+涉水/高空项目（游船、秋千、树降、走廊）暴雨时可能临时停运，配合景区安排。
+</li><li>
+全员<strong>随身带身份证</strong>；边境方向另带户口簿。
+</li><li>
+保留租车行、酒店、医院电话；买好旅游意外险（含自驾）。
+</li></ul>
+<hr>
+<h2>10. 信息来源（主要）</h2>
+<p><strong>官方与天气</strong></p>
+<ul><li>
+西双版纳州文旅局《2026年汛期暑期安全出游温馨提示》：<a href="https://www.xsbn.gov.cn/lfw/84137.news.detail.dhtml?news_id=3002525" target="_blank" rel="noopener">https://www.xsbn.gov.cn/lfw/84137.news.detail.dhtml?news_id=3002525</a>
+</li><li>
+云南网《2026年8月自然灾害风险提示》：<a href="https://xsbn.yunnan.cn/system/2026/08/03/034107064.shtml" target="_blank" rel="noopener">https://xsbn.yunnan.cn/system/2026/08/03/034107064.shtml</a>
+</li><li>
+景洪8月气候数据（Climate-Data.org）：<a href="https://zh.climate-data.org/亚洲/中国/云南/景洪市-4665/" target="_blank" rel="noopener">https://zh.climate-data.org/亚洲/中国/云南/景洪市-4665/</a>
+</li></ul>
+<p><strong>核心景点</strong></p>
+<ul><li>
+植物园官网门票页：<a href="https://www.xtbg.ac.cn/2022/ykfw/dzsw/202211/t20221117_6550332.html" target="_blank" rel="noopener">https://www.xtbg.ac.cn/2022/ykfw/dzsw/202211/t20221117_6550332.html</a>
+</li><li>
+曼听公园票价/晚会（大河票务）：<a href="https://m.dahepiao.com/news/20251103536166.html" target="_blank" rel="noopener">https://m.dahepiao.com/news/20251103536166.html</a> ；晚会场次（昆明本地宝）：<a href="https://m.km.bendibao.com/tour/75406.shtm" target="_blank" rel="noopener">https://m.km.bendibao.com/tour/75406.shtm</a>
+</li><li>
+告庄西双景（西双版纳旅游网）：<a href="https://www.xsbnlyw.cn/chwl/shownews.php?id=10" target="_blank" rel="noopener">https://www.xsbnlyw.cn/chwl/shownews.php?id=10</a> ；"68元门票"报道（重庆日报）：<a href="https://www.cqrb.cn/shishi/2025-09-18/2417410_pc.html" target="_blank" rel="noopener">https://www.cqrb.cn/shishi/2025-09-18/2417410_pc.html</a> ；强制扫码整改（川观新闻）：<a href="https://cbgc.scol.com.cn/news/6614564" target="_blank" rel="noopener">https://cbgc.scol.com.cn/news/6614564</a>
+</li><li>
+总佛寺（Trip.com实时）：<a href="https://hk.trip.com/moments/poi-xishuangbanna-zongfo-temple-10547799/" target="_blank" rel="noopener">https://hk.trip.com/moments/poi-xishuangbanna-zongfo-temple-10547799/</a>
+</li><li>
+野象谷票价（大河票务）：<a href="https://m.dahepiao.com/news/20251121538024.html" target="_blank" rel="noopener">https://m.dahepiao.com/news/20251121538024.html</a> ；优惠（昆明本地宝）：<a href="https://m.km.bendibao.com/mip/74925.shtm" target="_blank" rel="noopener">https://m.km.bendibao.com/mip/74925.shtm</a> ；公益诉讼终审（澎湃）：<a href="https://m.thepaper.cn/newsDetail_forward_27413664" target="_blank" rel="noopener">https://m.thepaper.cn/newsDetail_forward_27413664</a> ；"行为展示"改革（成都商报）：<a href="https://static.cdsb.com/micropub/Articles/202307/d3502b5cf0ed3beba5c9def1a89b83ef.html" target="_blank" rel="noopener">https://static.cdsb.com/micropub/Articles/202307/d3502b5cf0ed3beba5c9def1a89b83ef.html</a>
+</li><li>
+傣族园（昆明本地宝2025攻略）：<a href="https://m.km.bendibao.com/mip/74754.shtm" target="_blank" rel="noopener">https://m.km.bendibao.com/mip/74754.shtm</a> ；避雷负面长评（大众点评）：<a href="https://m.dianping.com/ugcdetail/408487235" target="_blank" rel="noopener">https://m.dianping.com/ugcdetail/408487235</a>
+</li><li>
+望天树（Meet99门票/树冠走廊）：<a href="https://m.meet99.com/jingdian-wangtianshu.html" target="_blank" rel="noopener">https://m.meet99.com/jingdian-wangtianshu.html</a> ；景洪自驾路线：<a href="https://www.xbtw.com/ask/6491a5acc40be281.html" target="_blank" rel="noopener">https://www.xbtw.com/ask/6491a5acc40be281.html</a>
+</li><li>
+基诺山寨（携程）：<a href="https://you.ctrip.com/spot/18040.html" target="_blank" rel="noopener">https://you.ctrip.com/spot/18040.html</a>
+</li></ul>
+<p><strong>在地体验</strong></p>
+<ul><li>
+勐远仙境（Trip.com 2026徒步攻略）：<a href="https://tw.trip.com/moments/detail/mengla-2210-149916936/" target="_blank" rel="noopener">https://tw.trip.com/moments/detail/mengla-2210-149916936/</a>
+</li><li>
+南糯山（穷游·本地人攻略）：<a href="https://biu.qyer.com/p/0uwZBAHieYa6H0wvt7LueQ.html" target="_blank" rel="noopener">https://biu.qyer.com/p/0uwZBAHieYa6H0wvt7LueQ.html</a>
+</li><li>
+打洛/独树成林/勐景来（穷游·边境游攻略）：<a href="https://biu.qyer.com/p/GgfU9eYANLFwsTcTi4_jPg.html" target="_blank" rel="noopener">https://biu.qyer.com/p/GgfU9eYANLFwsTcTi4_jPg.html</a> ；2026年6月边境自驾游记：<a href="https://www.meipian.cn/5nuumoxb" target="_blank" rel="noopener">https://www.meipian.cn/5nuumoxb</a>
+</li><li>
+曼远村蘑菇屋：<a href="https://tw.trip.com/travel-guide/attraction/jinghong/xishuangbanna-mushroom-house-145189904" target="_blank" rel="noopener">https://tw.trip.com/travel-guide/attraction/jinghong/xishuangbanna-mushroom-house-145189904</a>
+</li><li>
+曼丢村早市：<a href="https://hk.trip.com/moments/detail/jinghong-2154-120217271/" target="_blank" rel="noopener">https://hk.trip.com/moments/detail/jinghong-2154-120217271/</a>
+</li><li>
+曼掌村非遗（三村寨实测对比）：<a href="https://weibo.com/2/detail/comos:ninmhuf2003439" target="_blank" rel="noopener">https://weibo.com/2/detail/comos:ninmhuf2003439</a> ；象脚鼓制作（穷游）：<a href="https://biu.qyer.com/p/-lXW9cp2LOkPXgkt0pQapw.html" target="_blank" rel="noopener">https://biu.qyer.com/p/-lXW9cp2LOkPXgkt0pQapw.html</a>
+</li><li>
+基诺山雨林徒步（穷游全攻略）：<a href="https://m.qyer.com/feeds/p/0TIzqTEXPFukNLtprSX2_Q.html" target="_blank" rel="noopener">https://m.qyer.com/feeds/p/0TIzqTEXPFukNLtprSX2_Q.html</a> ；么卓线实测（新浪）：<a href="https://www.sina.cn/news/detail/5121716384696018.html" target="_blank" rel="noopener">https://www.sina.cn/news/detail/5121716384696018.html</a>
+</li></ul>
+<blockquote><p>信息核实时点：2026年8月中旬。价格/场次以出行前一周内核实为准（见第 1 章清单）。</p></blockquote>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  var dayColors = { "D0": "#9aa0a6", "D1": "#1f6feb", "D2": "#1a7f37", "D3": "#d29922", "D4": "#cf222e", "D5": "#8250df" };
+  var sections = [{"title":"D0 ·（周二）抵达","day":"D0","places":[{"name":"嘎洒机场","lat":21.970283,"lng":100.767339,"note":"抵达取车"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"入住休整"}]},{"title":"D1 ·（周三）市区适应日","day":"D1","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"出发"},{"name":"曼丢村","lat":21.96397,"lng":100.74873,"note":"早市"},{"name":"曼听公园+总佛寺","lat":21.99303,"lng":100.8072,"note":"上午游览"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"晚间夜市"}]},{"title":"D2 ·（周四）植物园日","day":"D2","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"市区出发"},{"name":"中科院植物园","lat":21.924375,"lng":101.257348,"note":"全天"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"返回市区"}]},{"title":"D3 ·（周五）傣寨风土日","day":"D3","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"市区出发"},{"name":"傣族园","lat":21.851499,"lng":100.945866,"note":"上午"},{"name":"曼远村","lat":21.914715,"lng":100.959831,"note":"下午"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"返回市区"}]},{"title":"D4 ·（周六）雨林与非遗日","day":"D4","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"市区出发"},{"name":"野象谷","lat":22.169365,"lng":100.853562,"note":"上午"},{"name":"曼掌村","lat":22.116086,"lng":100.844605,"note":"下午"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"晚间夜市"}]},{"title":"D5 ·（周日）返程","day":"D5","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"出发"},{"name":"嘎洒机场","lat":21.970283,"lng":100.767339,"note":"还车登机"}]}];
+  function base(id) {
+    var el = document.getElementById(id);
+    if (typeof L === 'undefined') { if (el) el.innerHTML = '<p style="padding:16px">地图组件加载失败（需联网）。请以路段表为准。</p>'; return null; }
+    var map = L.map(id);
+    L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=8&x={x}&y={y}&z={z}', { subdomains: ['1','2','3','4'], maxZoom: 18, attribution: '© 高德地图' }).addTo(map);
+    return map;
+  }
+  function fit(map, list) {
+    if (list.length === 1) { map.setView([list[0].lat, list[0].lng], 12); return; }
+    map.fitBounds(L.latLngBounds(list.map(function (p) { return [p.lat, p.lng]; })).pad(0.25));
+  }
+  function draw(map, pts, color) {
+    L.polyline(pts, { color: color, weight: 3, opacity: 0.8 }).addTo(map);
+  }
+  
+  var uniq = [{"name":"嘎洒机场","lat":21.970283,"lng":100.767339,"note":"抵达取车"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"入住休整"},{"name":"曼丢村","lat":21.96397,"lng":100.74873,"note":"早市"},{"name":"曼听公园+总佛寺","lat":21.99303,"lng":100.8072,"note":"上午游览"},{"name":"中科院植物园","lat":21.924375,"lng":101.257348,"note":"全天"},{"name":"傣族园","lat":21.851499,"lng":100.945866,"note":"上午"},{"name":"曼远村","lat":21.914715,"lng":100.959831,"note":"下午"},{"name":"野象谷","lat":22.169365,"lng":100.853562,"note":"上午"},{"name":"曼掌村","lat":22.116086,"lng":100.844605,"note":"下午"}];
+  var overview = base('map-ov-0');
+  if (overview) {
+    var seen = {};
+    sections.forEach(function (s) {
+      var color = dayColors[s.day] || '#1f6feb';
+      var pts = [];
+      s.places.forEach(function (p) {
+        if (!seen[p.name]) {
+          seen[p.name] = { notes: [p.note].filter(Boolean), marker: L.marker([p.lat, p.lng]).addTo(overview) };
+        } else if (p.note && seen[p.name].notes.indexOf(p.note) < 0) {
+          seen[p.name].notes.push(p.note);
+        }
+        pts.push([p.lat, p.lng]);
+      });
+      if (pts.length > 1) draw(overview, pts, color);
+    });
+    Object.keys(seen).forEach(function (n) {
+      seen[n].marker.bindPopup('<b>' + n + '</b><br>' + seen[n].notes.join(' · '));
+    });
+    fit(overview, uniq);
+  }
+})();
+</script>
+<script>
+(function () {
+  var dayColors = { "D0": "#9aa0a6", "D1": "#1f6feb", "D2": "#1a7f37", "D3": "#d29922", "D4": "#cf222e", "D5": "#8250df" };
+  var sections = [{"title":"D0 ·（周二）抵达","day":"D0","places":[{"name":"嘎洒机场","lat":21.970283,"lng":100.767339,"note":"抵达取车"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"入住休整"}]}];
+  function base(id) {
+    var el = document.getElementById(id);
+    if (typeof L === 'undefined') { if (el) el.innerHTML = '<p style="padding:16px">地图组件加载失败（需联网）。请以路段表为准。</p>'; return null; }
+    var map = L.map(id);
+    L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=8&x={x}&y={y}&z={z}', { subdomains: ['1','2','3','4'], maxZoom: 18, attribution: '© 高德地图' }).addTo(map);
+    return map;
+  }
+  function fit(map, list) {
+    if (list.length === 1) { map.setView([list[0].lat, list[0].lng], 12); return; }
+    map.fitBounds(L.latLngBounds(list.map(function (p) { return [p.lat, p.lng]; })).pad(0.25));
+  }
+  function draw(map, pts, color) {
+    L.polyline(pts, { color: color, weight: 3, opacity: 0.8 }).addTo(map);
+  }
+  
+  sections.forEach(function (s, i) {
+    var map = base('map-1-' + i);
+    if (!map) return;
+    var color = dayColors[s.day] || '#1f6feb';
+    var daySeen = {};
+    s.places.forEach(function (p) {
+      if (daySeen[p.name]) return;
+      daySeen[p.name] = true;
+      L.marker([p.lat, p.lng]).addTo(map).bindPopup('<b>' + p.name + '</b><br>' + (p.note || ''));
+    });
+    if (s.places.length > 1) draw(map, s.places.map(function (p) { return [p.lat, p.lng]; }), color);
+    fit(map, s.places);
+  });
+})();
+</script>
+<script>
+(function () {
+  var dayColors = { "D0": "#9aa0a6", "D1": "#1f6feb", "D2": "#1a7f37", "D3": "#d29922", "D4": "#cf222e", "D5": "#8250df" };
+  var sections = [{"title":"D1 ·（周三）市区适应日","day":"D1","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"出发"},{"name":"曼丢村","lat":21.96397,"lng":100.74873,"note":"早市"},{"name":"曼听公园+总佛寺","lat":21.99303,"lng":100.8072,"note":"上午游览"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"晚间夜市"}]}];
+  function base(id) {
+    var el = document.getElementById(id);
+    if (typeof L === 'undefined') { if (el) el.innerHTML = '<p style="padding:16px">地图组件加载失败（需联网）。请以路段表为准。</p>'; return null; }
+    var map = L.map(id);
+    L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=8&x={x}&y={y}&z={z}', { subdomains: ['1','2','3','4'], maxZoom: 18, attribution: '© 高德地图' }).addTo(map);
+    return map;
+  }
+  function fit(map, list) {
+    if (list.length === 1) { map.setView([list[0].lat, list[0].lng], 12); return; }
+    map.fitBounds(L.latLngBounds(list.map(function (p) { return [p.lat, p.lng]; })).pad(0.25));
+  }
+  function draw(map, pts, color) {
+    L.polyline(pts, { color: color, weight: 3, opacity: 0.8 }).addTo(map);
+  }
+  
+  sections.forEach(function (s, i) {
+    var map = base('map-2-' + i);
+    if (!map) return;
+    var color = dayColors[s.day] || '#1f6feb';
+    var daySeen = {};
+    s.places.forEach(function (p) {
+      if (daySeen[p.name]) return;
+      daySeen[p.name] = true;
+      L.marker([p.lat, p.lng]).addTo(map).bindPopup('<b>' + p.name + '</b><br>' + (p.note || ''));
+    });
+    if (s.places.length > 1) draw(map, s.places.map(function (p) { return [p.lat, p.lng]; }), color);
+    fit(map, s.places);
+  });
+})();
+</script>
+<script>
+(function () {
+  var dayColors = { "D0": "#9aa0a6", "D1": "#1f6feb", "D2": "#1a7f37", "D3": "#d29922", "D4": "#cf222e", "D5": "#8250df" };
+  var sections = [{"title":"D2 ·（周四）植物园日","day":"D2","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"市区出发"},{"name":"中科院植物园","lat":21.924375,"lng":101.257348,"note":"全天"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"返回市区"}]}];
+  function base(id) {
+    var el = document.getElementById(id);
+    if (typeof L === 'undefined') { if (el) el.innerHTML = '<p style="padding:16px">地图组件加载失败（需联网）。请以路段表为准。</p>'; return null; }
+    var map = L.map(id);
+    L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=8&x={x}&y={y}&z={z}', { subdomains: ['1','2','3','4'], maxZoom: 18, attribution: '© 高德地图' }).addTo(map);
+    return map;
+  }
+  function fit(map, list) {
+    if (list.length === 1) { map.setView([list[0].lat, list[0].lng], 12); return; }
+    map.fitBounds(L.latLngBounds(list.map(function (p) { return [p.lat, p.lng]; })).pad(0.25));
+  }
+  function draw(map, pts, color) {
+    L.polyline(pts, { color: color, weight: 3, opacity: 0.8 }).addTo(map);
+  }
+  
+  sections.forEach(function (s, i) {
+    var map = base('map-3-' + i);
+    if (!map) return;
+    var color = dayColors[s.day] || '#1f6feb';
+    var daySeen = {};
+    s.places.forEach(function (p) {
+      if (daySeen[p.name]) return;
+      daySeen[p.name] = true;
+      L.marker([p.lat, p.lng]).addTo(map).bindPopup('<b>' + p.name + '</b><br>' + (p.note || ''));
+    });
+    if (s.places.length > 1) draw(map, s.places.map(function (p) { return [p.lat, p.lng]; }), color);
+    fit(map, s.places);
+  });
+})();
+</script>
+<script>
+(function () {
+  var dayColors = { "D0": "#9aa0a6", "D1": "#1f6feb", "D2": "#1a7f37", "D3": "#d29922", "D4": "#cf222e", "D5": "#8250df" };
+  var sections = [{"title":"D3 ·（周五）傣寨风土日","day":"D3","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"市区出发"},{"name":"傣族园","lat":21.851499,"lng":100.945866,"note":"上午"},{"name":"曼远村","lat":21.914715,"lng":100.959831,"note":"下午"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"返回市区"}]}];
+  function base(id) {
+    var el = document.getElementById(id);
+    if (typeof L === 'undefined') { if (el) el.innerHTML = '<p style="padding:16px">地图组件加载失败（需联网）。请以路段表为准。</p>'; return null; }
+    var map = L.map(id);
+    L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=8&x={x}&y={y}&z={z}', { subdomains: ['1','2','3','4'], maxZoom: 18, attribution: '© 高德地图' }).addTo(map);
+    return map;
+  }
+  function fit(map, list) {
+    if (list.length === 1) { map.setView([list[0].lat, list[0].lng], 12); return; }
+    map.fitBounds(L.latLngBounds(list.map(function (p) { return [p.lat, p.lng]; })).pad(0.25));
+  }
+  function draw(map, pts, color) {
+    L.polyline(pts, { color: color, weight: 3, opacity: 0.8 }).addTo(map);
+  }
+  
+  sections.forEach(function (s, i) {
+    var map = base('map-4-' + i);
+    if (!map) return;
+    var color = dayColors[s.day] || '#1f6feb';
+    var daySeen = {};
+    s.places.forEach(function (p) {
+      if (daySeen[p.name]) return;
+      daySeen[p.name] = true;
+      L.marker([p.lat, p.lng]).addTo(map).bindPopup('<b>' + p.name + '</b><br>' + (p.note || ''));
+    });
+    if (s.places.length > 1) draw(map, s.places.map(function (p) { return [p.lat, p.lng]; }), color);
+    fit(map, s.places);
+  });
+})();
+</script>
+<script>
+(function () {
+  var dayColors = { "D0": "#9aa0a6", "D1": "#1f6feb", "D2": "#1a7f37", "D3": "#d29922", "D4": "#cf222e", "D5": "#8250df" };
+  var sections = [{"title":"D4 ·（周六）雨林与非遗日","day":"D4","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"市区出发"},{"name":"野象谷","lat":22.169365,"lng":100.853562,"note":"上午"},{"name":"曼掌村","lat":22.116086,"lng":100.844605,"note":"下午"},{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"晚间夜市"}]}];
+  function base(id) {
+    var el = document.getElementById(id);
+    if (typeof L === 'undefined') { if (el) el.innerHTML = '<p style="padding:16px">地图组件加载失败（需联网）。请以路段表为准。</p>'; return null; }
+    var map = L.map(id);
+    L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=8&x={x}&y={y}&z={z}', { subdomains: ['1','2','3','4'], maxZoom: 18, attribution: '© 高德地图' }).addTo(map);
+    return map;
+  }
+  function fit(map, list) {
+    if (list.length === 1) { map.setView([list[0].lat, list[0].lng], 12); return; }
+    map.fitBounds(L.latLngBounds(list.map(function (p) { return [p.lat, p.lng]; })).pad(0.25));
+  }
+  function draw(map, pts, color) {
+    L.polyline(pts, { color: color, weight: 3, opacity: 0.8 }).addTo(map);
+  }
+  
+  sections.forEach(function (s, i) {
+    var map = base('map-5-' + i);
+    if (!map) return;
+    var color = dayColors[s.day] || '#1f6feb';
+    var daySeen = {};
+    s.places.forEach(function (p) {
+      if (daySeen[p.name]) return;
+      daySeen[p.name] = true;
+      L.marker([p.lat, p.lng]).addTo(map).bindPopup('<b>' + p.name + '</b><br>' + (p.note || ''));
+    });
+    if (s.places.length > 1) draw(map, s.places.map(function (p) { return [p.lat, p.lng]; }), color);
+    fit(map, s.places);
+  });
+})();
+</script>
+<script>
+(function () {
+  var dayColors = { "D0": "#9aa0a6", "D1": "#1f6feb", "D2": "#1a7f37", "D3": "#d29922", "D4": "#cf222e", "D5": "#8250df" };
+  var sections = [{"title":"D5 ·（周日）返程","day":"D5","places":[{"name":"告庄西双景","lat":22.00716,"lng":100.821339,"note":"出发"},{"name":"嘎洒机场","lat":21.970283,"lng":100.767339,"note":"还车登机"}]}];
+  function base(id) {
+    var el = document.getElementById(id);
+    if (typeof L === 'undefined') { if (el) el.innerHTML = '<p style="padding:16px">地图组件加载失败（需联网）。请以路段表为准。</p>'; return null; }
+    var map = L.map(id);
+    L.tileLayer('https://wprd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scl=1&style=8&x={x}&y={y}&z={z}', { subdomains: ['1','2','3','4'], maxZoom: 18, attribution: '© 高德地图' }).addTo(map);
+    return map;
+  }
+  function fit(map, list) {
+    if (list.length === 1) { map.setView([list[0].lat, list[0].lng], 12); return; }
+    map.fitBounds(L.latLngBounds(list.map(function (p) { return [p.lat, p.lng]; })).pad(0.25));
+  }
+  function draw(map, pts, color) {
+    L.polyline(pts, { color: color, weight: 3, opacity: 0.8 }).addTo(map);
+  }
+  
+  sections.forEach(function (s, i) {
+    var map = base('map-6-' + i);
+    if (!map) return;
+    var color = dayColors[s.day] || '#1f6feb';
+    var daySeen = {};
+    s.places.forEach(function (p) {
+      if (daySeen[p.name]) return;
+      daySeen[p.name] = true;
+      L.marker([p.lat, p.lng]).addTo(map).bindPopup('<b>' + p.name + '</b><br>' + (p.note || ''));
+    });
+    if (s.places.length > 1) draw(map, s.places.map(function (p) { return [p.lat, p.lng]; }), color);
+    fit(map, s.places);
+  });
+})();
+</script>
+</body>
+</html>

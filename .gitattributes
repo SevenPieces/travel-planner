@@ -1,0 +1,20 @@
+# Normalize every text file to LF in the repository, and check it out as LF.
+# This repository is almost entirely Markdown; without this a Windows
+# contributor's CRLF shows up as a whole-file diff.
+* text=auto eol=lf
+
+*.md    text eol=lf
+*.mjs   text eol=lf
+*.json  text eol=lf
+*.html  text eol=lf
+*.yml   text eol=lf
+*.sh    text eol=lf
+
+# Never normalize binary assets
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
